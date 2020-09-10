@@ -17,7 +17,7 @@ public class EmailService {
 
 	public void sendSimpleMessage(String to, String from, String subject, String text) {
 		
-		log.info("sending email to: {} , subject: {} ", to,subject);
+		log.info("sending email To: {} , Subject: {} ", to,subject);
 		
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setFrom(from);
