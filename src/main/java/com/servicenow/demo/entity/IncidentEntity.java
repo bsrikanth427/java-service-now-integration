@@ -4,59 +4,50 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
-@Table(name="incident")
+@Table(name = "incident")
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class IncidentEntity {
 
 	@Id
-	@Column(name="id")
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
-	
-	@Column(name="created_date_time")
-	private Date createdDateTime;
-	
-	@Column(name="assignment_group")
+	@Column(name = "incident_number")
+	private String incidentNumber;
+
+	@Column(name = "created_on")
+	private Date createdOn;
+
+	@Column(name = "assignment_group")
 	private String assignmentGroup;
-	
-	@Column(name="status")
+
+	@Column(name = "status")
 	private String status;
-	
-	
-	@Column(name="updated_date_time")
-	private Date updatedDateTime;
-	
-	@Column(name="assigned_to")
+
+	@Column(name = "updated_on")
+	private Date updatedOn;
+
+	@Column(name = "assigned_to")
 	private String assignedTo;
-	
-	@Column(name="subject")
+
+	@Column(name = "subject")
 	private String subject;
-	
-	@Column(name="priority")
+
+	@Column(name = "priority")
 	private String priority;
-	
-	@Column(name="severity")
+
+	@Column(name = "severity")
 	private String severity;
 
-	public Long getId() {
-		return id;
+	public String getIncidentNumber() {
+		return incidentNumber;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public Date getCreatedDateTime() {
-		return createdDateTime;
-	}
-
-	public void setCreatedDateTime(Date createdDateTime) {
-		this.createdDateTime = createdDateTime;
+	public void setIncidentNumber(String incidentNumber) {
+		this.incidentNumber = incidentNumber;
 	}
 
 	public String getAssignmentGroup() {
@@ -73,14 +64,6 @@ public class IncidentEntity {
 
 	public void setStatus(String status) {
 		this.status = status;
-	}
-
-	public Date getUpdatedDateTime() {
-		return updatedDateTime;
-	}
-
-	public void setUpdatedDateTime(Date updatedDateTime) {
-		this.updatedDateTime = updatedDateTime;
 	}
 
 	public String getAssignedTo() {
@@ -113,5 +96,21 @@ public class IncidentEntity {
 
 	public void setSeverity(String severity) {
 		this.severity = severity;
+	}
+
+	public Date getCreatedOn() {
+		return createdOn;
+	}
+
+	public void setCreatedOn(Date createdOn) {
+		this.createdOn = createdOn;
+	}
+
+	public Date getUpdatedOn() {
+		return updatedOn;
+	}
+
+	public void setUpdatedOn(Date updatedOn) {
+		this.updatedOn = updatedOn;
 	}
 }

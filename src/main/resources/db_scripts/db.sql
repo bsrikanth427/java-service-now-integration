@@ -1,16 +1,16 @@
 create table incident (
- id bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY,
- incident_number bigint(20),
- create_date_time DATETIME,
+ incident_number VARCHAR(20) NOT NULL  PRIMARY KEY,
+ created_on DATETIME,
  assignment_group VARCHAR(60),
- status VARCHAR(10),
- updated_date_time DATETIME,
+ status VARCHAR(20),
+ updated_on DATETIME,
  assigned_to VARCHAR(60),
  subject TEXT,
  priority VARCHAR(10),
  severity VARCHAR(10)
+ );
  
-);
+ 
 create table response_sla_config (
  id bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY,
  assignment_group VARCHAR(60),
