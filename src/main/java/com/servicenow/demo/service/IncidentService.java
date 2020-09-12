@@ -3,11 +3,10 @@ package com.servicenow.demo.service;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -26,9 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.servicenow.demo.Enumeration.AssignmentGroupType;
@@ -39,6 +36,7 @@ import com.servicenow.demo.entity.IncidentEntity;
 import com.servicenow.demo.entity.ResponseSlaConfigEntity;
 import com.servicenow.demo.repository.IncidentRepository;
 import com.servicenow.demo.repository.ResponseSlaRepository;
+import com.servicenow.demo.util.DateUtil;
 
 @Service
 public class IncidentService {
@@ -108,36 +106,27 @@ public class IncidentService {
 		entity.setIncidentNumber(incidentJson.getString("number"));
 		String assignedToJson =  incidentJson.get("assigned_to").toString();
 		String assignedGroupJson =  incidentJson.get("assignment_group").toString();
-		entity.setAssignedTo(getValue(assignedToJson));
-		entity.setAssignmentGroup(getValue(assignedGroupJson));
+		entity.setAssignedTo(DateUtil.getValue(assignedToJson));
+		entity.setAssignmentGroup(DateUtil.getValue(assignedGroupJson));
 		entity.setSubject(incidentJson.getString("short_description"));
 		entity.setPriority(incidentJson.getString("priority"));
 		entity.setSeverity(incidentJson.getString("severity"));
 		entity.setStatus(ServiceNowStatusType.getById(incidentJson.getInt("state")).getName());
-		entity.setCreatedOn(convertToDate(incidentJson.getString("sys_created_on")));
-		entity.setUpdatedOn(convertToDate(incidentJson.getString("sys_updated_on")));
+		entity.setCreatedOn(DateUtil.convertToDate(incidentJson.getString("sys_created_on")));
+		entity.setUpdatedOn(DateUtil.convertToDate(incidentJson.getString("sys_updated_on")));
 		return entity;
 	}
 	
-	private String getValue(String jsonStr) throws JsonMappingException, JsonProcessingException {
-		if(!StringUtils.isEmpty(jsonStr)) {
-			JSONObject json = new JSONObject(jsonStr);
-			return json.getString("value");
-		}
-		return null;
-		
-	}
 	
-	private Date convertToDate(String dateString) throws ParseException {
-		return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dateString);
-	}
 
 	private String prepareFilterQuery() {
+		Map<String, String> dateTimeMap = DateUtil.currentDateTimeMap();
 		return new StringBuilder(Constants.ASSIGNMENT_GROUP).append("=")
 				.append(AssignmentGroupType.CHAT_BOT_GROUP.getId()).append(ServiceNowOperatorType.OR.getId())
 				.append(Constants.ASSIGNMENT_GROUP).append("=").append(AssignmentGroupType.RPA_GROUP.getId())
 				.append(ServiceNowOperatorType.AND.getId()).append(Constants.SYS_UPDATED_ON).append(">=")
-				.append("2020-09-09','12:12:12'").toString();
+				.append("'"+dateTimeMap.get("date")+"',"+"'"+dateTimeMap.get("time")+"'").toString();
+				//.append("'2020-09-09','12:12:12'").toString();
 
 	}
 
@@ -145,25 +134,7 @@ public class IncidentService {
 		return responseSlaRepository.findAll();
 	}
 	
-	public class ModelDto {
-		@JsonProperty("link")
-		private String link;
-		@JsonProperty("value")
-		private String value;
-		public String getLink() {
-			return link;
-		}
-		public void setLink(String link) {
-			this.link = link;
-		}
-		public String getValue() {
-			return value;
-		}
-		public void setValue(String value) {
-			this.value = value;
-		}
-	}
-
+	
 
 }
 
