@@ -23,20 +23,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.servicenow.demo.Enumeration.AssignmentGroupType;
+import com.servicenow.demo.Enumeration.IncidentStatusType;
 import com.servicenow.demo.Enumeration.ServiceNowOperatorType;
-import com.servicenow.demo.Enumeration.ServiceNowStatusType;
 import com.servicenow.demo.constants.Constants;
 import com.servicenow.demo.entity.IncidentEntity;
 import com.servicenow.demo.entity.ResponseSlaConfigEntity;
 import com.servicenow.demo.repository.IncidentRepository;
 import com.servicenow.demo.repository.ResponseSlaRepository;
-import com.servicenow.demo.util.DateUtil;
+import com.servicenow.demo.util.Utils;
 
 @Service
 public class IncidentService {
@@ -78,8 +77,8 @@ public class IncidentService {
 		request.addHeader("Authorization", "Basic UlBBU2VydmljZTpScGFAMjAyMA==");
 
 		HttpResponse response = httpClient.execute(request);
-		
 		HttpEntity httpEntity = response.getEntity();
+		
 		String apiResponse = EntityUtils.toString(httpEntity);
 		log.info("ServiceNow-API-Response: {} ",apiResponse);
 		JSONObject responseJson = new JSONObject(apiResponse);
@@ -106,21 +105,19 @@ public class IncidentService {
 		entity.setIncidentNumber(incidentJson.getString("number"));
 		String assignedToJson =  incidentJson.get("assigned_to").toString();
 		String assignedGroupJson =  incidentJson.get("assignment_group").toString();
-		entity.setAssignedTo(DateUtil.getValue(assignedToJson));
-		entity.setAssignmentGroup(DateUtil.getValue(assignedGroupJson));
+		entity.setAssignedTo(Utils.getValue(assignedToJson));
+		entity.setAssignmentGroup(Utils.getValue(assignedGroupJson));
 		entity.setSubject(incidentJson.getString("short_description"));
 		entity.setPriority(incidentJson.getString("priority"));
 		entity.setSeverity(incidentJson.getString("severity"));
-		entity.setStatus(ServiceNowStatusType.getById(incidentJson.getInt("state")).getName());
-		entity.setCreatedOn(DateUtil.convertToDate(incidentJson.getString("sys_created_on")));
-		entity.setUpdatedOn(DateUtil.convertToDate(incidentJson.getString("sys_updated_on")));
+		entity.setStatus(IncidentStatusType.getById(incidentJson.getInt("state")).getName());
+		entity.setCreatedOn(Utils.convertToDate(incidentJson.getString("sys_created_on")));
+		entity.setUpdatedOn(Utils.convertToDate(incidentJson.getString("sys_updated_on")));
 		return entity;
 	}
 	
-	
-
 	private String prepareFilterQuery() {
-		Map<String, String> dateTimeMap = DateUtil.currentDateTimeMap();
+		Map<String, String> dateTimeMap = Utils.currentDateTimeMap();
 		return new StringBuilder(Constants.ASSIGNMENT_GROUP).append("=")
 				.append(AssignmentGroupType.CHAT_BOT_GROUP.getId()).append(ServiceNowOperatorType.OR.getId())
 				.append(Constants.ASSIGNMENT_GROUP).append("=").append(AssignmentGroupType.RPA_GROUP.getId())

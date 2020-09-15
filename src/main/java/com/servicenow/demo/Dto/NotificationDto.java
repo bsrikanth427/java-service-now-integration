@@ -1,4 +1,4 @@
-package com.servicenow.demo;
+package com.servicenow.demo.Dto;
 
 public class NotificationDto {
 

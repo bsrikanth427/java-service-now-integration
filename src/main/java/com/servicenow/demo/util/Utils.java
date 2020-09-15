@@ -12,7 +12,7 @@ import org.springframework.util.StringUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-public class DateUtil {
+public class Utils {
 
 	public static String getValue(String jsonStr) throws JsonMappingException, JsonProcessingException {
 		if (!StringUtils.isEmpty(jsonStr)) {

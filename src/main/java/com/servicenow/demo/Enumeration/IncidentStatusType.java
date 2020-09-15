@@ -1,6 +1,6 @@
 package com.servicenow.demo.Enumeration;
 
-public enum ServiceNowStatusType {
+public enum IncidentStatusType {
 
 	NEW(1, "New"), IN_PROGRESS(2, "In Progress"), ON_HOLD(3, "On Hold"), RESOLVED(6, "Resolved"),
 	CLOSED(7, "Closed"), CANCELED(8, "Canceled");
@@ -8,7 +8,7 @@ public enum ServiceNowStatusType {
 	private int id;
 	private String name;
 	
-	ServiceNowStatusType(int id, String name) {
+	IncidentStatusType(int id, String name) {
 		this.id = id;
 		this.name = name;
 	}
@@ -29,8 +29,8 @@ public enum ServiceNowStatusType {
 		this.name = name;
 	}
 	
-	public static ServiceNowStatusType getById(int id) {
-	    for(ServiceNowStatusType e : values()) {
+	public static IncidentStatusType getById(int id) {
+	    for(IncidentStatusType e : values()) {
 	        if(e.id == id) return e;
 	    }
 	    return null;
