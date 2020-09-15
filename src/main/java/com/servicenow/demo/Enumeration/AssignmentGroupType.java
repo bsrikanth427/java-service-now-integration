@@ -28,4 +28,11 @@ public enum AssignmentGroupType {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	public static AssignmentGroupType getById(String id) {
+	    for(AssignmentGroupType e : values()) {
+	        if(e.id.equalsIgnoreCase(id)) return e;
+	    }
+	    return null;
+	}
 }

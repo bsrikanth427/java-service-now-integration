@@ -7,5 +7,5 @@ import com.servicenow.demo.entity.IncidentEntity;
 
 @Repository
 public interface IncidentRepository extends JpaRepository<IncidentEntity, Long>{
-
+	
 }

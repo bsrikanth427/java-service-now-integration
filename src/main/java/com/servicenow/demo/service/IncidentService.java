@@ -61,7 +61,7 @@ public class IncidentService {
 	@Autowired
 	IncidentRepository incidentRepository;
 
-	@Scheduled(cron = "${jobs.incident.frequency}")
+	//@Scheduled(cron = "${jobs.incident.frequency}")
 	public void getIncidents() throws ClientProtocolException, IOException, URISyntaxException, JSONException, ParseException {
 		log.info("currentTime : " + Instant.now());
 		String filterQuery = prepareFilterQuery();
