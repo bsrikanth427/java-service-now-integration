@@ -1,17 +1,12 @@
 package com.servicenow.demo.service;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.sql.DataSource;
-
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +34,10 @@ import com.twilio.Twilio;
 import com.twilio.base.ResourceSet;
 import com.twilio.rest.api.v2010.account.Call;
 import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.twiml.VoiceResponse;
+import com.twilio.twiml.voice.Say;
 import com.twilio.type.PhoneNumber;
+import com.twilio.type.Twiml;
 
 @Service
 public class MobileNotificationService {
@@ -69,25 +67,17 @@ public class MobileNotificationService {
 
 	public String sendNotification(String toNumber, String msg, String notificationType) {
 		Twilio.init(accountSid, authToken);
-		try {
-			if (notificationType.equalsIgnoreCase("SMS")) {
-				Message message = Message.creator(new PhoneNumber(toNumber), new PhoneNumber(fromNumber), msg).create();
-				log.info("Message sent successfully to :  {} and msg-sid {} : ", toNumber, message.getSid());
-				return message.getSid();
-	 		} else {
-				Call call = Call.creator(new PhoneNumber(toNumber), new PhoneNumber(fromNumber),
-						new URI("http://demo.twilio.com/docs/voice.xml")).create();
-				log.info("Call initiated to :  {} and call-sid {} : ", toNumber, call.getSid());
-				return call.getSid();
-			}
-		} catch (URISyntaxException e) {
-			log.info("error sending twilio notification : ",e.getMessage());
+		if (notificationType.equalsIgnoreCase("SMS")) {
+			Message message = Message.creator(new PhoneNumber(toNumber), new PhoneNumber(fromNumber), msg).create();
+			log.info("Message sent successfully to :  {} and msg-sid {} : ", toNumber, message.getSid());
+			return message.getSid();
+		} else {
+			Say say = new Say.Builder(msg).build();
+		    VoiceResponse response = new VoiceResponse.Builder().say(say).build();
+			Call call = Call.creator(new PhoneNumber(toNumber), new PhoneNumber(fromNumber),new Twiml(response.toXml())).create();
+			log.info("Call initiated to :  {} and call-sid {} : ", toNumber, call.getSid());
+			return call.getSid();
 		}
-		return null;
-	}
-
-	public void updateSmsAndCallStatus() {
-
 	}
 
 	@Scheduled(cron = "${jobs.response.sla.frequency}")
@@ -105,14 +95,7 @@ public class MobileNotificationService {
 		notify("Resolution", resList);
 	}
 
-	//@Scheduled(cron = "${jobs.test.frequency}")
-	public void notifyTestSms() {
-		log.info("Executing procedure Resolution-SLA-Config");
-		List<Map<String, Object>> resList = executeProcedure("testProc");
-		notify("Response", resList);
-		log.info("<<notifyTestSms job finished>>");
-	}
-
+	
 	@Scheduled(cron = "${jobs.update.sms.call.status}")
 	public void updateSmsCallInfo() {
 		log.info("<<running update-sms-call-status job>>");
@@ -189,7 +172,7 @@ public class MobileNotificationService {
 	
 	private Boolean canSendNotification(String incidentNumber, Map<String, Integer> map) {
 		Integer numberOfTimesCallTriggered = map.get(incidentNumber);
-		if(numberOfTimesCallTriggered != null && numberOfTimesCallTriggered.intValue() <3) {
+		if(numberOfTimesCallTriggered == null || numberOfTimesCallTriggered.intValue() <3) {
 			return Boolean.TRUE;
 		}
 		return Boolean.FALSE;
@@ -216,8 +199,8 @@ public class MobileNotificationService {
 		dto.setSmsEnabled(map.get("email_enabled").toString());
 		dto.setMobileNumber(map.get("mobile_number").toString());
 		dto.setMaxTimeLapsed((Integer) map.get("max_time_lapse"));
-		BigDecimal calTimeLapsed = (BigDecimal) map.get("cal_time_lapsed");
-		dto.setCalcuatedTimeLapsed(calTimeLapsed.intValue());
+		//BigDecimal calTimeLapsed = (BigDecimal) map.get("cal_time_lapsed");
+		//dto.setCalcuatedTimeLapsed(calTimeLapsed.intValue());
 		dto.setPriority(map.get("priority").toString());
 		return dto;
 	}

@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.json.JSONObject;
 import org.springframework.util.StringUtils;
@@ -24,7 +25,9 @@ public class Utils {
 	}
 
 	public static Date convertToDate(String dateString) throws ParseException {
-		return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dateString);
+		SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+		return isoFormat.parse(dateString);	
 	}
 
 	public static Map<String, String> currentDateTimeMap() {
