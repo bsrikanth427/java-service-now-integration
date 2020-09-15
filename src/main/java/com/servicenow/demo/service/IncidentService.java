@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -60,9 +61,10 @@ public class IncidentService {
 	@Autowired
 	IncidentRepository incidentRepository;
 
-	//@Scheduled(cron = "${jobs.incident.frequency}")
+	@Scheduled(cron = "${jobs.incident.frequency}")
 	public void getIncidents() throws ClientProtocolException, IOException, URISyntaxException, JSONException, ParseException {
-		log.info("currentTime : " + Instant.now());
+		
+		log.info("running Get-Incident Job at : " + Instant.now());
 		String filterQuery = prepareFilterQuery();
 		log.info("filter-query : {} ", filterQuery);
 
@@ -87,6 +89,7 @@ public class IncidentService {
 		
 		incidentRepository.saveAll(incidents);
 		log.info("Successfully saved Incidents {} ",incidents);
+		log.info("<<Get-Incident Job finished>>");
 	}
 	
 	

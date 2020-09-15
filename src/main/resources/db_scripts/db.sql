@@ -39,7 +39,8 @@ create table resolution_sla_config (
 );
 
 create table sms_call_info (
- incident_number VARCHAR(20) NOT NULL  PRIMARY KEY,
+ id bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+ incident_number VARCHAR(20),
  assigned_to VARCHAR(60),
  sms_status VARCHAR(20),
  call_status VARCHAR(20),
@@ -47,10 +48,10 @@ create table sms_call_info (
  created_on DATETIME,
  updated_on DATETIME,
  msg_sid VARCHAR(50),
- call_sid VARCHAR(50)
+ call_sid VARCHAR(50),
+ counter INT
 
  );
- 
 
 INSERT INTO ct_test.response_sla_config
 (id, assignment_group, priority, escalation_level, time_lapse, mobile_number, email_id, call_enabled, email_enabled, max_time_lapse)
@@ -59,6 +60,17 @@ VALUES(1, 'RPA_GRP', 'P1', 1, 10, '9703730427', 'bsrikanth427@gmail.com', 'YES',
 INSERT INTO ct_test.response_sla_config
 (id, assignment_group, priority, escalation_level, time_lapse, mobile_number, email_id, call_enabled, email_enabled, max_time_lapse)
 VALUES(2, 'RPA_GRP', 'P1', 1, 10, '9703730427', 'sboddupally@evoketechnologies.com', 'YES', 'YES', 15);
+
+
+INSERT INTO ct_test.response_sla_config
+(id, assignment_group, priority, escalation_level, time_lapse, mobile_number, email_id, call_enabled, email_enabled, max_time_lapse)
+VALUES(3, 'RPA_GRP', '5', 1, 0, '9703730427', 'bsrikanth427@gmail.com', 'YES', 'YES', 5);
+
+INSERT INTO ct_test.response_sla_config
+(id, assignment_group, priority, escalation_level, time_lapse, mobile_number, email_id, call_enabled, email_enabled, max_time_lapse)
+VALUES(4, 'RPA_GRP', '5', 1, 6, '9885228336', 'sboddupally@evoketechnologies.com', 'YES', 'YES', 10);
+
+
 
 
 

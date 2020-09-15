@@ -4,6 +4,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -15,6 +17,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class SmsCallInfoEntity {
 
 	@Id
+	@Column(name = "id")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	
 	@Column(name = "incident_number")
 	private String incidentNumber;
 	
@@ -41,6 +47,8 @@ public class SmsCallInfoEntity {
 
 	@Column(name = "updated_on")
 	private Date updatedOn;
+	
+	
 
 	public String getIncidentNumber() {
 		return incidentNumber;
@@ -112,6 +120,14 @@ public class SmsCallInfoEntity {
 
 	public void setUpdatedOn(Date updatedOn) {
 		this.updatedOn = updatedOn;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	

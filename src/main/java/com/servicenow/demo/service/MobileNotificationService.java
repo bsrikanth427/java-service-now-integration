@@ -1,6 +1,7 @@
 package com.servicenow.demo.service;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
@@ -71,12 +72,12 @@ public class MobileNotificationService {
 		try {
 			if (notificationType.equalsIgnoreCase("SMS")) {
 				Message message = Message.creator(new PhoneNumber(toNumber), new PhoneNumber(fromNumber), msg).create();
-				log.info(message.getSid());
+				log.info("Message sent successfully to :  {} and msg-sid {} : ", toNumber, message.getSid());
 				return message.getSid();
-			} else {
+	 		} else {
 				Call call = Call.creator(new PhoneNumber(toNumber), new PhoneNumber(fromNumber),
 						new URI("http://demo.twilio.com/docs/voice.xml")).create();
-				log.info(call.getSid());
+				log.info("Call initiated to :  {} and call-sid {} : ", toNumber, call.getSid());
 				return call.getSid();
 			}
 		} catch (URISyntaxException e) {
@@ -89,21 +90,22 @@ public class MobileNotificationService {
 
 	}
 
-	//@Scheduled(cron = "${jobs.response.sla.frequency}")
+	@Scheduled(cron = "${jobs.response.sla.frequency}")
 	public void notifyResponseSla() {
+		log.info("running response-sla-config job");
 		log.info("Executing procedure Response-SLA-Config");
 		List<Map<String, Object>> resList = executeProcedure("getResponseSlaConfig");
 		notify("Response", resList);
 	}
 
-	//@Scheduled(cron = "${jobs.resolution.sla.frequency}")
+	@Scheduled(cron = "${jobs.resolution.sla.frequency}")
 	public void notifyResolutionSla() {
 		log.info("Executing procedure Resolution-SLA-Config");
 		List<Map<String, Object>> resList = executeProcedure("getResolutionSlaConfig");
 		notify("Resolution", resList);
 	}
 
-	@Scheduled(cron = "${jobs.test.frequency}")
+	//@Scheduled(cron = "${jobs.test.frequency}")
 	public void notifyTestSms() {
 		log.info("Executing procedure Resolution-SLA-Config");
 		List<Map<String, Object>> resList = executeProcedure("testProc");
@@ -143,23 +145,54 @@ public class MobileNotificationService {
 	}
 
 	private void notify(String slaType, List<Map<String, Object>> resList) {
+		Map<String, Integer> notificationsCountMap = getNotificationSentCount();
 		resList.stream().forEach(map -> {
 			NotificationDto dto = prepareNotificationDto(map);
-			SmsCallInfoEntity smsCallInfo = createSmsCallInfo(dto);
-			if (dto.getSmsEnabled().equalsIgnoreCase(YorN.YES.name())) {
-				String msg = prepareSmsMessage(dto.getPriority(), dto.getIncidentNumber(), dto.getAssignmentGroup(),
-						dto.getMaxTimeLapsed(), slaType);
-				String msgSid = sendNotification(dto.getMobileNumber(), msg, NotificationType.SMS.name());
-				smsCallInfo.setSmsStatus(NotificationStatusType.QUEUED.getName());
-				smsCallInfo.setMsgSid(msgSid);
+			if(canSendNotification(dto.getIncidentNumber(), notificationsCountMap)) {
+				SmsCallInfoEntity smsCallInfo = createSmsCallInfo(dto);
+				if (dto.getSmsEnabled().equalsIgnoreCase(YorN.YES.name())) {
+					sendSms(slaType, dto, smsCallInfo);
+				}
+				if (dto.getCallEnabled().equalsIgnoreCase(YorN.YES.name())) {
+					initiateCall(dto, smsCallInfo);
+				}
+				smsCallInfoRepository.save(smsCallInfo);
 			}
-			if (dto.getCallEnabled().equalsIgnoreCase(YorN.YES.name())) {
-				String callSid = sendNotification(dto.getMobileNumber(), null, NotificationType.CALL.name());
-				smsCallInfo.setCallSid(callSid);
-				smsCallInfo.setCallStatus(NotificationStatusType.QUEUED.getName());
-			}
-			smsCallInfoRepository.save(smsCallInfo);
 		});
+	}
+
+	private void initiateCall(NotificationDto dto, SmsCallInfoEntity smsCallInfo) {
+		String callSid = sendNotification(dto.getMobileNumber(), null, NotificationType.CALL.name());
+		smsCallInfo.setCallSid(callSid);
+		smsCallInfo.setCallStatus(NotificationStatusType.QUEUED.getName());
+	}
+
+	private void sendSms(String slaType, NotificationDto dto, SmsCallInfoEntity smsCallInfo) {
+		String msg = prepareSmsMessage(dto.getPriority(), dto.getIncidentNumber(), dto.getAssignmentGroup(),
+				dto.getMaxTimeLapsed(), slaType);
+		String msgSid = sendNotification(dto.getMobileNumber(), msg, NotificationType.SMS.name());
+		smsCallInfo.setSmsStatus(NotificationStatusType.QUEUED.getName());
+		smsCallInfo.setMsgSid(msgSid);
+	}
+	
+	public Map<String, Integer> getNotificationSentCount(){
+		List<Object[]> smsCallList = smsCallInfoRepository.findNotificationSentCount();
+		Map<String, Integer> map = new HashMap<>();
+		smsCallList.forEach(obj -> {
+			String  incidentNumber = (String) obj[1];
+			BigInteger count = (BigInteger) obj[0];
+			map.put(incidentNumber, count.intValue());
+		});
+		return map;
+		
+	}
+	
+	private Boolean canSendNotification(String incidentNumber, Map<String, Integer> map) {
+		Integer numberOfTimesCallTriggered = map.get(incidentNumber);
+		if(numberOfTimesCallTriggered != null && numberOfTimesCallTriggered.intValue() <3) {
+			return Boolean.TRUE;
+		}
+		return Boolean.FALSE;
 	}
 
 	private SmsCallInfoEntity createSmsCallInfo(NotificationDto dto) {
@@ -193,7 +226,7 @@ public class MobileNotificationService {
 			String slaType) {
 		priority = PriorityType.getById(Integer.parseInt(priority)).getName();
 		grp = AssignmentGroupType.getById(grp).getName();
-		String msg = "Hi - Priority " + priority + "Incident " + incidentNumber + " is received to Queue " + grp
+		String msg = "Hi - Priority " + priority + " Incident " + incidentNumber + " is received to Queue " + grp
 				+ ". You have " + timeLeft + " minutes left to " + slaType + " to meet the desired SLA.";
 		return msg;
 	}
