@@ -72,6 +72,7 @@ public class MobileNotificationService {
 			log.info("Message sent successfully to :  {} and msg-sid {} : ", toNumber, message.getSid());
 			return message.getSid();
 		} else {
+			log.info("voice-message : {} ",msg);
 			Say say = new Say.Builder(msg).build();
 		    VoiceResponse response = new VoiceResponse.Builder().say(say).build();
 			Call call = Call.creator(new PhoneNumber(toNumber), new PhoneNumber(fromNumber),new Twiml(response.toXml())).create();
@@ -133,6 +134,9 @@ public class MobileNotificationService {
 			NotificationDto dto = prepareNotificationDto(map);
 			if(canSendNotification(dto.getIncidentNumber(), notificationsCountMap)) {
 				SmsCallInfoEntity smsCallInfo = createSmsCallInfo(dto);
+				String msg = prepareSmsMessage(dto.getPriority(), dto.getIncidentNumber(), dto.getAssignmentGroup(),
+						dto.getMaxTimeLapsed(), slaType);
+				dto.setSmsMessage(msg);
 				if (dto.getSmsEnabled().equalsIgnoreCase(YorN.YES.name())) {
 					sendSms(slaType, dto, smsCallInfo);
 				}
@@ -145,15 +149,14 @@ public class MobileNotificationService {
 	}
 
 	private void initiateCall(NotificationDto dto, SmsCallInfoEntity smsCallInfo) {
-		String callSid = sendNotification(dto.getMobileNumber(), null, NotificationType.CALL.name());
+		String callSid = sendNotification(dto.getMobileNumber(), dto.getSmsMessage(), NotificationType.CALL.name());
 		smsCallInfo.setCallSid(callSid);
 		smsCallInfo.setCallStatus(NotificationStatusType.QUEUED.getName());
 	}
 
 	private void sendSms(String slaType, NotificationDto dto, SmsCallInfoEntity smsCallInfo) {
-		String msg = prepareSmsMessage(dto.getPriority(), dto.getIncidentNumber(), dto.getAssignmentGroup(),
-				dto.getMaxTimeLapsed(), slaType);
-		String msgSid = sendNotification(dto.getMobileNumber(), msg, NotificationType.SMS.name());
+		
+		String msgSid = sendNotification(dto.getMobileNumber(), dto.getSmsMessage(), NotificationType.SMS.name());
 		smsCallInfo.setSmsStatus(NotificationStatusType.QUEUED.getName());
 		smsCallInfo.setMsgSid(msgSid);
 	}

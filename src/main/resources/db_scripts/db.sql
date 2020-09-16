@@ -55,20 +55,25 @@ create table sms_call_info (
 
 INSERT INTO ct_test.response_sla_config
 (id, assignment_group, priority, escalation_level, time_lapse, mobile_number, email_id, call_enabled, email_enabled, max_time_lapse)
-VALUES(1, 'RPA_GRP', 'P1', 1, 10, '9703730427', 'bsrikanth427@gmail.com', 'YES', 'YES', 15);
+VALUES(1, 'RPA_GRP', '1', 1, 1, '+919703730427', 'bsrikanth427@gmail.com', 'YES', 'YES', 5);
 
 INSERT INTO ct_test.response_sla_config
 (id, assignment_group, priority, escalation_level, time_lapse, mobile_number, email_id, call_enabled, email_enabled, max_time_lapse)
-VALUES(2, 'RPA_GRP', 'P1', 1, 10, '9703730427', 'sboddupally@evoketechnologies.com', 'YES', 'YES', 15);
+VALUES(2, 'RPA_GRP', '1', 2, 6, '+919885228336', 'sboddupally@evoketechnologies.com', 'YES', 'YES', 10);
 
 
 INSERT INTO ct_test.response_sla_config
 (id, assignment_group, priority, escalation_level, time_lapse, mobile_number, email_id, call_enabled, email_enabled, max_time_lapse)
-VALUES(3, 'RPA_GRP', '5', 1, 0, '9703730427', 'bsrikanth427@gmail.com', 'YES', 'YES', 5);
+VALUES(3, 'RPA_GRP', '5', 1, 5, '919703730427', 'bsrikanth427@gmail.com', 'YES', 'YES', 10);
 
 INSERT INTO ct_test.response_sla_config
 (id, assignment_group, priority, escalation_level, time_lapse, mobile_number, email_id, call_enabled, email_enabled, max_time_lapse)
-VALUES(4, 'RPA_GRP', '5', 1, 6, '9885228336', 'sboddupally@evoketechnologies.com', 'YES', 'YES', 10);
+VALUES(4, 'RPA_GRP', '5', 1, 11, '+919885228336', 'sboddupally@evoketechnologies.com', 'YES', 'YES', 15);
+
+
+INSERT INTO ct_test.response_sla_config
+(id, assignment_group, priority, escalation_level, time_lapse, mobile_number, email_id, call_enabled, email_enabled, max_time_lapse)
+VALUES(6, 'RPA_GRP', '2', 2, 15, '+919885228336', 'sboddupally@evoketechnologies.com', 'YES', 'YES', 20);
 
 
 
@@ -81,5 +86,13 @@ VALUES(1, 'RPA_GRP', 'P1', 1, 10, '9703730427', 'bsrikanth427@gmail.com', 'YES',
 INSERT INTO ct_test.resolution_sla_config
 (id, assignment_group, priority, escalation_level, time_lapse, mobile_number, email_id, call_enabled, email_enabled, max_time_lapse)
 VALUES(2, 'RPA_GRP', 'P1', 1, 10, '9703730427', 'sboddupally@evoketechnologies.com', 'YES', 'YES', 15);
+
+INSERT INTO ct_test.resolution_sla_config
+(id, assignment_group, priority, escalation_level, time_lapse, mobile_number, email_id, call_enabled, email_enabled, max_time_lapse)
+VALUES(5, 'RPA_GRP', '2', 1, 1,  '+919703730427', 'bsrikanth427@gmail.com', 'YES', 'YES', 5);
+
+INSERT INTO ct_test.resolution_sla_config
+(id, assignment_group, priority, escalation_level, time_lapse, mobile_number, email_id, call_enabled, email_enabled, max_time_lapse)
+VALUES(6, 'RPA_GRP', '2', 2, 5, '+919885228336', 'sboddupally@evoketechnologies.com', 'YES', 'YES', 10);
 
 
